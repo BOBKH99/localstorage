@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:storedatalocal/ScoreDatabase/StudentscoreScreen1.dart';
 
 import '../NewStudent.dart';
 import '../StudentDatabase.dart';
@@ -12,6 +10,8 @@ import 'ScoresDatabase.dart';
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class Listscore extends StatefulWidget {
+  const Listscore();
+
 
 
   @override
@@ -54,11 +54,11 @@ class _ListscoreState extends State<Listscore> with RouteAware {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Error"),
+          title: const Text("Error"),
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -114,17 +114,19 @@ class _ListscoreState extends State<Listscore> with RouteAware {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Student List'),
+          title: const Text('Student List'),
           toolbarHeight: 80,
           actions: [
             InkWell(
-                onTap: () => Navigator.push(context,MaterialPageRoute(builder: (context) => CustomTextFieldDemo(),)),
-                child: Container(
+                onTap: () => Navigator.push(context,MaterialPageRoute(builder: (context) => const CustomTextFieldDemo(),)),
+                child: SizedBox(
                     width: 80,
                     child: Image.asset('assets/id-card.png',width: 80,))),
-            SizedBox(width: 100,),
-            InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => StudentScoresScreen(),)),
+            const SizedBox(width: 100,),
+            const InkWell(
+              // onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //
+              // } ,)),
               child: Icon(Icons.score,weight: 50,),
             )
           ],
@@ -133,7 +135,7 @@ class _ListscoreState extends State<Listscore> with RouteAware {
           width: double.infinity,
           height: double.infinity,
 
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               color: Colors.white70,
               borderRadius: BorderRadius.all(Radius.circular(10))
           ),
@@ -160,7 +162,7 @@ class _ListscoreState extends State<Listscore> with RouteAware {
                   ),
                   child: Row(
                     children: [
-                      Container(
+                      SizedBox(
                         width: 80,
                         height: 80,
                         child: CircleAvatar(
@@ -168,7 +170,7 @@ class _ListscoreState extends State<Listscore> with RouteAware {
                           radius: 40, // Adjust the radius as needed
                         ),
                       ),
-                      Text(student.name, style: TextStyle(fontSize: 16)),
+                      Text(student.name, style: const TextStyle(fontSize: 16)),
                       ListView.builder(
                         itemCount: score.length,
                         itemBuilder: (context, index) {
@@ -180,7 +182,7 @@ class _ListscoreState extends State<Listscore> with RouteAware {
                           );
                         },
                       ),
-                      Text(student.phone!, style: TextStyle(fontSize: 14),),
+                      Text(student.phone!, style: const TextStyle(fontSize: 14),),
                     ],
                   ),
                 ),

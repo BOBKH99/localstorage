@@ -2,10 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:storedatalocal/NewStudent.dart';
 import 'package:storedatalocal/ScoreDatabase/AI_listscore.dart';
-import 'package:storedatalocal/ScoreDatabase/ScoreScreen.dart';
-import 'ScoreDatabase/ListScore.dart';
-import 'ScoreDatabase/ScoresDatabase.dart';
-import 'TextField.dart';
 import 'StudentDatabase.dart';
 import 'editstudent.dart';
 import 'model.dart';
@@ -21,10 +17,12 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           fontFamily: 'black'
       ),
-      home: StudentPage(),
+      home: const StudentPage(),
       navigatorObservers: [routeObserver],
     );
   }
@@ -40,22 +38,42 @@ class MyApp extends StatelessWidget {
 
 
 class StudentPage extends StatefulWidget {
-  const StudentPage({super.key});
+  const StudentPage();
 
   @override
   _StudentPageState createState() => _StudentPageState();
 }
 
 class _StudentPageState extends State<StudentPage> with RouteAware {
-  final StudentsDatabase _dbHelper = StudentsDatabase();
+  final StudentsDatabase db = StudentsDatabase();
 
   List<Student> _students = [];
-
+  List<String> _classes = [];
+  String? _selectedClass;
 
   @override
   void initState() {
     super.initState();
-    _loadStudents();
+    _loadClasses();
+    //_loadStudents(_selectedClass!);
+  }
+
+  void _loadClasses() async {
+    final classes = await db.getAllClasses();
+    setState(() {
+      _classes = classes;
+      if (_classes.isNotEmpty) {
+        _selectedClass = _classes[0];
+        _loadStudents(_selectedClass!);
+      }
+    });
+  }
+
+  void _loadStudents(String studentClass) async {
+    final students = await db.getStudentsByClass(studentClass);
+    setState(() {
+      _students = students;
+    });
   }
 
   @override
@@ -75,83 +93,112 @@ class _StudentPageState extends State<StudentPage> with RouteAware {
 
   @override
   void didPopNext() {
-    // Called when the current route has been popped off, and the current route
-    // shows up again.
-    _loadStudents();
-  }
-
-  Future<void> _loadStudents() async {
-    List<Student> students = await _dbHelper.getStudents();
-    setState(() {
-      _students = students;
-    });
-  }
-
-  
-  
-  
-
-
-
-  void _navigateToEditStudent(Student student) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EditStudentPage(student: student)),
-    );
-    _loadStudents();
+    // This method is called when this screen becomes visible again
+    if (_selectedClass != null) {
+      _loadStudents(_selectedClass!);
+      _loadClasses();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    print(_students.length);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Student List'),
+        title: const Text('Student List'),
         toolbarHeight: 80,
         actions: [
+          const Text('Class: '),
+          if (_classes.isNotEmpty)
+            Container(
+              width: 100, // Set your desired width
+              height: 40, // Set your desired height
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),// Set your desired background color
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), // Shadow color
+                    spreadRadius: 2, // Spread radius (controls the size of the shadow)
+                    blurRadius: 5, // Blur radius (controls the softness of the shadow)
+                    offset: const Offset(0, 3), // Offset (controls the position of the shadow)
+                  ),
+                ],
+              ),
+              child: Center(
+                child: DropdownButton<String>(
+                  value: _selectedClass,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedClass = newValue!;
+                      _loadStudents(_selectedClass!);
+                    });
+                  },
+                  items: _classes.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          const SizedBox(width: 200,),
           InkWell(
-            onTap: () => Navigator.push(context,MaterialPageRoute(builder: (context) => CustomTextFieldDemo(),)),
-              child: Container(
-                width: 80,
-                  child: Image.asset('assets/id-card.png',width: 80,))),
-          SizedBox(width: 100,),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CustomTextFieldDemo()),
+            ),
+            child: SizedBox(
+              width: 80,
+              child: Image.asset('assets/id-card.png', width: 80),
+            ),
+          ),
+          const SizedBox(width: 100),
           InkWell(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => StudentGrid(),)),
-            child: Icon(Icons.score,weight: 50,),
-          )
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const StudentGrid()),
+            ),
+            child: Image.asset('assets/work-order.png',height: 80,)
+          ),
+          const SizedBox(width: 20,),
         ],
       ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-
-        decoration: BoxDecoration(
-            color: Colors.white70,
-            borderRadius: BorderRadius.all(Radius.circular(10))
+        decoration: const BoxDecoration(
+          color: Colors.white70,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,crossAxisSpacing: 0.2,
+            crossAxisCount: 4,
+            crossAxisSpacing: 0.2,
             mainAxisSpacing: 0.1,
-            childAspectRatio: 1 / 0.3,),
+            childAspectRatio: 1 / 0.3,
+          ),
           itemCount: _students.length,
           itemBuilder: (context, index) {
             final student = _students[index];
             return InkWell(
-              onTap: () => _navigateToEditStudent(student),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditStudentPage(student: student),
+                ),
+              ),
               highlightColor: Colors.blueGrey,
               hoverColor: Colors.blue,
-              
               child: Container(
                 width: 200,
                 height: 80,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blueGrey,width: 0.05),
-                  //borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.blueGrey, width: 0.05),
                 ),
                 child: Row(
                   children: [
-                    Container(
+                    SizedBox(
                       width: 80,
                       height: 80,
                       child: CircleAvatar(
@@ -166,15 +213,24 @@ class _StudentPageState extends State<StudentPage> with RouteAware {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(student.name, style: TextStyle(fontSize: 16)),
+                            Text(student.name, style: const TextStyle(fontSize: 16)),
                             Row(
                               children: [
-                                Text('Score: ', style: TextStyle(fontSize: 14)),
-                                Text('${student.score}', style: TextStyle(fontSize: 14,color: CupertinoColors.activeBlue)),
-                                Text(', Class: ${student.studentClass}', style: TextStyle(fontSize: 14)),
-                               ],
+                                const Text('Score: ', style: TextStyle(fontSize: 14)),
+                                Text(
+                                  '${student.score}',
+                                  style: const TextStyle(fontSize: 14, color: CupertinoColors.activeBlue),
+                                ),
+                                Text(
+                                  ', Class: ${student.studentClass}',
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
                             ),
-                            Text(student.phone!, style: TextStyle(fontSize: 14),)
+                            Text(
+                              student.phone!,
+                              style: const TextStyle(fontSize: 14),
+                            )
                           ],
                         ),
                       ),
@@ -183,8 +239,9 @@ class _StudentPageState extends State<StudentPage> with RouteAware {
                 ),
               ),
             );
-          },),
-      )
+          },
+        ),
+      ),
     );
   }
 }

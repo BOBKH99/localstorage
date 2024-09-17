@@ -6,6 +6,8 @@ import 'StudentDatabase.dart';
 import 'model.dart';
 
 class CustomTextFieldDemo extends StatefulWidget {
+  const CustomTextFieldDemo();
+
   @override
   _CustomTextFieldDemoState createState() => _CustomTextFieldDemoState();
 }
@@ -95,7 +97,7 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
     return Scaffold(
       backgroundColor: Colors.blueGrey,
       appBar: AppBar(
-        title: Text('Custom Text Fields'),
+        title: const Text('Custom Text Fields'),
         backgroundColor: Colors.blueAccent,
       ),
       body: Center(
@@ -117,14 +119,14 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
                   labelText: 'Name',
                   errorText: _nameError,
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 _buildTextField(
                   controller: _scoreController,
                   labelText: 'Score',
                   errorText: _scoreError,
                   keyboardType: TextInputType.number,
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Row(
                   children: [
                     Expanded(
@@ -134,7 +136,7 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
                         errorText: _classError,
                       ),
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                     Expanded(
                       child: _buildTextField(
                         controller: _ageController,
@@ -145,18 +147,18 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
                     ),
                   ],
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 _buildDatePickerField(
                   controller: _birthdayController,
                   labelText: 'Birthday (YYYY-MM-DD)',
                   errorText: _birthdayError,
                 ),
-                SizedBox(height: 5,),
+                const SizedBox(height: 5,),
                 _buildTextField(
                   controller: _phoneController,
                   labelText: 'Phone Number',
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 // _imagePath == null
                 //     ? Text('No image selected')
                 //     : Image.file(File(_imagePath!),width: 100,height: 100,),
@@ -165,13 +167,13 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
                   height: 300,
                   color: Colors.white,
                   child: _imagePath == null
-                      ? Text('No image selected')
+                      ? const Text('No image selected')
                       : Image.file(File(_imagePath!),width: 100,height: 100,),
                 ),
-                SizedBox(height: 8,),
+                const SizedBox(height: 8,),
                 ElevatedButton(
                   onPressed: _pickImage,
-                  child: Text('Pick Image'),
+                  child: const Text('Pick Image'),
                 ),
                 ElevatedButton(
                   onPressed: _addStudent,
@@ -185,7 +187,7 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
                     //   _lottieController.duration = composition.duration;
                     // },
                   )
-                      : Text('New student'),
+                      : const Text('New student'),
                 ),
               ],
             ),
@@ -221,26 +223,26 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
       controller: controller,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(color: Colors.black),
+        labelStyle: const TextStyle(color: Colors.black),
         errorText: errorText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: const BorderSide(color: Colors.white),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: const BorderSide(color: Colors.white),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: const BorderSide(color: Colors.white),
         ),
         filled: true,
         fillColor: Colors.white,
-        suffixIcon: errorText != null ? Icon(Icons.error, color: Colors.red) : null,
+        suffixIcon: errorText != null ? const Icon(Icons.error, color: Colors.red) : null,
       ),
       keyboardType: keyboardType,
-      style: TextStyle(color: Colors.black),
+      style: const TextStyle(color: Colors.black),
     );
   }
 
@@ -257,37 +259,35 @@ class _CustomTextFieldDemoState extends State<CustomTextFieldDemo>  {
           firstDate: DateTime(1900),
           lastDate: DateTime(2100),
         );
-        if (pickedDate != null) {
-          setState(() {
-            controller.text = pickedDate.toIso8601String().split('T').first;
-            _birthdayError = null;
-          });
-        }
-      },
+        setState(() {
+          controller.text = pickedDate!.toIso8601String().split('T').first;
+          _birthdayError = null;
+        });
+            },
       child: AbsorbPointer(
         child: TextField(
           controller: controller,
           decoration: InputDecoration(
             labelText: labelText,
-            labelStyle: TextStyle(color: Colors.black),
+            labelStyle: const TextStyle(color: Colors.black),
             errorText: errorText,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Colors.white),
+              borderSide: const BorderSide(color: Colors.white),
             ),
             filled: true,
             fillColor: Colors.white,
-            suffixIcon: errorText != null ? Icon(Icons.error, color: Colors.red) : null,
+            suffixIcon: errorText != null ? const Icon(Icons.error, color: Colors.red) : null,
           ),
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
         ),
       ),
     );

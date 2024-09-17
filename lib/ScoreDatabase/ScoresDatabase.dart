@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:intl/intl.dart';
 
 class ScoresDatabase {
   static final ScoresDatabase instance = ScoresDatabase._init();
@@ -33,8 +34,8 @@ class ScoresDatabase {
       id INTEGER NOT NULL,
       student_id INTEGER NOT NULL,
       date TEXT NOT NULL,
-      homework_score INTEGER,
-      answer_score INTEGER,
+      homework_score INTEGER DEFAULT 0,
+      answer_score INTEGER DEFAULT 0,
       total_homework_score INTEGER,
       total_answer_score INTEGER,
       PRIMARY KEY (id, student_id)
@@ -53,7 +54,7 @@ class ScoresDatabase {
   // Insert a new score with custom id logic
   Future<void> insertScore(int studentId, int? homeworkScore, int? answerScore) async {
     final db = await instance.database;
-    String currentDate = DateTime.now().toIso8601String();
+    String currentDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
     // Get the max current id for the student_id
     final List<Map<String, dynamic>> maxIdResult = await db.rawQuery(
@@ -83,6 +84,46 @@ class ScoresDatabase {
     return await db.query('scores', where: 'student_id = ?', whereArgs: [studentId]);
   }
 
+  Future<Map<String, dynamic>?> fetchLastScores(int studentId) async {
+    final db = await instance.database;
+
+    // First, fetch the last scores
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+    SELECT homework_score, answer_score
+    FROM scores
+    WHERE student_id = ?
+    ORDER BY date DESC
+    LIMIT 1
+  ''', [studentId]);
+
+    if (result.isNotEmpty) {
+      Map<String, dynamic> lastScore = result.first;
+
+      // Check if answer_score is 0
+      if (lastScore['answer_score'] == 0) {
+        // Fetch the last non-zero answer_score
+        final List<Map<String, dynamic>> nonZeroAnswer = await db.rawQuery('''
+        SELECT homework_score, answer_score
+        FROM scores
+        WHERE student_id = ? AND answer_score != 0
+        ORDER BY date DESC
+        LIMIT 1
+      ''', [studentId]);
+
+        // Return the last non-zero answer_score if it exists
+        if (nonZeroAnswer.isNotEmpty) {
+          return nonZeroAnswer.first;
+        }
+      }
+
+      return lastScore; // Return the last score if answer_score is not 0
+    } else {
+      return null; // Return null if no scores exist
+    }
+  }
+
+
+
   // Update a score
   Future<void> updateScore(int id, int studentId, int? newHomeworkScore, int? newAnswerScore) async {
     final db = await instance.database;
@@ -109,6 +150,15 @@ class ScoresDatabase {
         total_answer_score = total_answer_score + ?
       WHERE id = ? AND student_id = ?
     ''', [newHomeworkScore, newAnswerScore, homeworkDifference, answerDifference, id, studentId]);
+  }
+  Future<void> deleteScoreAll(int studentId) async {
+    final db = await instance.database;
+
+    await db.delete(
+      'scores',
+      where: 'student_id = ?',
+      whereArgs: [studentId],
+    );
   }
 
   // Delete a score
@@ -156,7 +206,51 @@ class ScoresDatabase {
       return {'total_homework_score': 0, 'total_answer_score': 0};
     }
   }
+  // Function to calculate the average percentage
+  Future<Map<String, double>> calculateAveragePercentage(int studentId) async {
+    final db = await instance.database;
 
+    // Fetch all valid scores (non-zero)
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT homework_score, answer_score 
+      FROM scores 
+      WHERE student_id = ? AND (homework_score != 0 OR answer_score != 0)
+    ''', [studentId]);
+
+    double totalAnswerPercentage = 0.0;
+    double totalHomeworkPercentage = 0.0;
+    int countAnswer = 0;
+    int countHomework = 0;
+
+    // Loop through the results and calculate percentages
+    for (var row in result) {
+      int homeworkScore = row['homework_score'] ?? 0;
+      int answerScore = row['answer_score'] ?? 0;
+
+      // Calculate answer_score percentage if it's non-zero
+      if (answerScore != 0) {
+        double answerPercentage = (answerScore / 100) * 100;
+        totalAnswerPercentage += answerPercentage;
+        countAnswer++;
+      }
+
+      // Calculate homework_score percentage if it's non-zero
+      if (homeworkScore != 0) {
+        double homeworkPercentage = (homeworkScore / 10) * 100;
+        totalHomeworkPercentage += homeworkPercentage;
+        countHomework++;
+      }
+    }
+
+    // Calculate averages
+    double averageAnswerPercentage = countAnswer > 0 ? totalAnswerPercentage / countAnswer : 0.0;
+    double averageHomeworkPercentage = countHomework > 0 ? totalHomeworkPercentage / countHomework : 0.0;
+
+    return {
+      'average_answer_percentage': averageAnswerPercentage,
+      'average_homework_percentage': averageHomeworkPercentage
+    };
+  }
 
   Future close() async {
     final db = await instance.database;

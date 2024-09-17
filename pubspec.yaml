@@ -16,42 +16,30 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
-
 environment:
-  sdk: '>=3.4.4 <4.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.0
+  sqflite: ^2.0.0+4
+  path: ^1.8.0
+  intl: ^0.17.0
+  fl_chart: ^0.69.0
+  image_picker: ^0.8.4+8
+  flutter_image_processing: ^0.0.4
+  sqflite_common_ffi: ^2.0.0+4
+  lottie: ^1.2.2
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^2.0.0
+  path_provider: ^2.0.9
+  text_indexing: ^0.1.0
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^3.0.0
-  path_provider:
-  sqflite:
-  image_picker:
-  sqflite_common_ffi:
-  lottie:
-  auto_size_text:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -68,6 +56,7 @@ flutter:
   assets:
      - assets/
      - assets/lottie/
+     - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -84,6 +73,9 @@ flutter:
      - family: black
        fonts:
          - asset: assets/fonts/black.ttf
+     - family: khmer
+       fonts:
+         - asset: assets/fonts/Koulen-Regular.ttf
 
   #
   # For details regarding fonts from package dependencies,

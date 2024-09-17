@@ -66,6 +66,10 @@ class StudentsDatabase {
       return [];
     }
   }
+  Future<List<Map<String, Object?>>> fetchStudent(int id) async {
+    final db = await database;
+    return await db.query('students', where: 'id = ?', whereArgs: [id]);
+  }
 
   Future<int> updateStudent(Student student) async {
     try {
@@ -94,6 +98,26 @@ class StudentsDatabase {
       print('Delete student error: $e');
       return -1;
     }
+  }
+  Future<List<Student>> getStudentsByClass(String studentClass) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'students',
+      where: 'studentClass = ?',
+      whereArgs: [studentClass],
+      orderBy: 'name ASC',
+    );
+
+    return List.generate(maps.length, (i) {
+      return Student.fromMap(maps[i]);
+    });
+  }
+
+  Future<List<String>> getAllClasses() async {
+    final db = await database;
+    var result = await db.rawQuery('SELECT DISTINCT studentClass FROM students ORDER BY studentClass ASC');
+    List<String> classes = result.map((c) => c['studentClass'] as String).toList();
+    return classes;
   }
 
   Future<void> close() async {
